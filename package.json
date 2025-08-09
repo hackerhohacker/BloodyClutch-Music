@@ -1,0 +1,26 @@
+{
+  "name": "discord-lavalink-music-bot",
+  "version": "1.0.0",
+  "description": "A Discord music bot using Lavalink with slash and prefix commands",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "deploy": "node src/index.js --deploy"
+  },
+  "keywords": ["discord", "music", "bot", "lavalink"],
+  "author": "Friday",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "shoukaku": "^4.0.1",
+    "kazagumo": "^3.3.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=16.9.0"
+  }
+}
