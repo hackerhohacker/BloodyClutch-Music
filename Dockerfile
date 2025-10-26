@@ -1,6 +1,6 @@
 # 1. Start with an image that has Java 17 installed
-# Use the full, official repository name to ensure Docker finds it.
-FROM openjdk:17-jre-slim
+# Using a specific patch version to avoid "not found" errors.
+FROM openjdk:17.0.8-jre-slim
 
 # 2. Set the working directory inside the container
 WORKDIR /usr/src/app
