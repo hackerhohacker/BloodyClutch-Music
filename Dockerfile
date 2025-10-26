@@ -1,6 +1,5 @@
-# 1. Start with an image that has Java 17 installed
-# Using a specific patch version to avoid "not found" errors.
-FROM openjdk:17.0.8-jre-slim
+# 1. Start with the most reliable Java 17 image tag (without -slim)
+FROM openjdk:17-jre
 
 # 2. Set the working directory inside the container
 WORKDIR /usr/src/app
