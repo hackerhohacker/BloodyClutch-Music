@@ -1,5 +1,37 @@
 const { EmbedBuilder } = require('discord.js');
-const { createNowPlayingEmbed, createMusicButtons, isValidUrl } = require('../../utils/musicUtils');
+const { createNowPlayingEmbed, createMusicButtons } = require('../../utils/musicUtils'); 
+
+// Helper function to validate and clean the URL aggressively
+function cleanYoutubeUrl(url) {
+    // Check if it's a typical YouTube watch or short link
+    if (!url.includes('youtube.com/watch?v=') && !url.includes('youtu.be/')) {
+        return url; // Not a YouTube link we need to clean
+    }
+    
+    // 1. Remove parameters that start the 'radio' feature or cause search issues
+    let cleanedUrl = url.replace(/(&list=RD.*|&start_radio=1)/g, '');
+
+    try {
+        // Use URL object to reliably extract video/playlist ID
+        const parsedUrl = new URL(cleanedUrl);
+        const videoId = parsedUrl.searchParams.get('v') || parsedUrl.pathname.substring(1);
+        const playlistId = parsedUrl.searchParams.get('list');
+
+        if (videoId) {
+            // Return only the essential part: https://www.youtube.com/watch?v=VIDEO_ID
+            return `https://www.youtube.com/watch?v=${videoId}`;
+        } else if (playlistId) {
+            // Return the essential playlist part
+            return `https://www.youtube.com/playlist?list=${playlistId}`;
+        }
+        
+    } catch (e) {
+        // If the URL object fails to parse it, fall back to the cleaned string
+        return cleanedUrl; 
+    }
+    
+    return url;
+}
 
 module.exports = {
     name: 'play',
@@ -19,10 +51,20 @@ module.exports = {
             });
         }
         
-        const query = args.join(' ');
+        // Use 'let' for the query variable so we can modify it.
+        let query = args.join(' '); 
         const member = message.member;
         const guild = message.guild;
         
+        // --- FINAL URL CLEANING STEP ---
+        // Clean the input, whether it's a URL or a search query
+        query = cleanYoutubeUrl(query);
+        // --- END CLEANING STEP ---
+
+        // 🚨 CRITICAL FIX: Explicitly prepend 'ytsearch:' if it's not a URL
+        const isUrl = query.startsWith('http') || query.startsWith('https');
+        const finalQuery = isUrl ? query : `ytsearch:${query}`;
+
         // Check bot permissions
         const permissions = member.voice.channel.permissionsFor(guild.members.me);
         if (!permissions.has(['Connect', 'Speak'])) {
@@ -54,17 +96,17 @@ module.exports = {
                 });
             }
             
-            // Search for tracks
-            const searchQuery = isValidUrl(query) ? query : `ytsearch:${query}`;
-            const result = await message.client.kazagumo.search(searchQuery, {
-                requester: message.author
+            // Search using the final, explicitly prefixed query
+            const result = await message.client.kazagumo.search(finalQuery, {
+                requester: message.author,
+                engine: 'youtube' // Keep forcing the engine as a backup
             });
             
             if (!result || !result.tracks.length) {
                 return loadingMessage.edit({
                     embeds: [new EmbedBuilder()
                         .setColor('#ff0000')
-                        .setDescription('❌ No tracks found for your search!')]
+                        .setDescription('❌ No tracks found for your search! The music server may be having connection issues. Please try a simpler search term.')]
                 });
             }
             
@@ -101,7 +143,7 @@ module.exports = {
                 player.queue.add(track);
                 player.play();
                 
-                const embed = createNowPlayingEmbed(track, player);
+                const embed = createNowPlayingEmbed(track, player); 
                 const buttons = createMusicButtons();
                 
                 await loadingMessage.edit({
