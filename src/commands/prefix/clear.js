@@ -33,7 +33,7 @@ module.exports = {
         
         const embed = new EmbedBuilder()
             .setColor('#00ff00')
-            .setTitle('queue cleared)
+            .setTitle('Queue Cleared')
             .setDescription(`now playing **${currentTrack?.title || 'Unknown'}**`)
             .addFields(
                 { name: '📋 Queue', value: `0 song(s) remaining`, inline: true },
