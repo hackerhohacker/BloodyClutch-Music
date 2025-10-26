@@ -1,5 +1,5 @@
-# 1. Start with the most reliable Java 17 image tag (without -slim)
-FROM openjdk:17-jre
+# 1. Start with a highly stable, non-slim Java 17 image tag (best chance for success)
+FROM openjdk:17.0.2-jre
 
 # 2. Set the working directory inside the container
 WORKDIR /usr/src/app
