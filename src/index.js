@@ -36,17 +36,29 @@ class MusicBot extends Client {
         this.loadEvents();
     }
 
-    initializeLavalink() {
+  initializeLavalink() {
+        // IMPORTANT: Use the 'url' property as host:port without the protocol (ws/wss)
+        const connectionUrl = `${process.env.LAVALINK_HOST}:${process.env.LAVALINK_PORT}`;
+
         const lavalinkConfig = {
             name: 'main',
-            url: `${process.env.LAVALINK_SECURE === 'true' ? 'wss' : 'ws'}://${process.env.LAVALINK_HOST}:${process.env.LAVALINK_PORT}`,
+            url: connectionUrl, // Shoukaku expects 'url' but must be host:port (no protocol)
+            
+            // Adding host and port back in for maximum compatibility with older versions
+            host: process.env.LAVALINK_HOST, 
+            port: parseInt(process.env.LAVALINK_PORT),
+            
             auth: process.env.LAVALINK_PASSWORD,
             secure: process.env.LAVALINK_SECURE === 'true'
         };
 
-        console.log(`🔗 Connecting to Lavalink: ${lavalinkConfig.url}`);
+        // For console logging, we display the full URL with protocol
+        const logUrl = `${lavalinkConfig.secure ? 'wss' : 'ws'}://${lavalinkConfig.url}`;
+
+        console.log(`🔗 Connecting to Lavalink: ${logUrl}`);
         console.log(`🔐 Using secure connection: ${lavalinkConfig.secure}`);
 
+        // The correct array structure for the final argument
         this.kazagumo = new Kazagumo({
             defaultSearchEngine: 'youtube',
             send: (guildId, payload) => {
@@ -55,7 +67,7 @@ class MusicBot extends Client {
             }
         }, new Connectors.DiscordJS(this), [lavalinkConfig]);
 
-        // Lavalink event listeners
+        // Lavalink event listeners (keep these the same)
         this.kazagumo.shoukaku.on('ready', (name) => {
             console.log(`✅ Lavalink ${name} is ready!`);
         });
@@ -81,7 +93,6 @@ class MusicBot extends Client {
             console.log(`🔄 Lavalink ${name} reconnecting. ${reconnectsLeft} attempts left, next in ${reconnectInterval}ms`);
         });
     }
-
     loadCommands() {
         // Load slash commands
         const slashCommandsPath = path.join(__dirname, 'commands', 'slash');
