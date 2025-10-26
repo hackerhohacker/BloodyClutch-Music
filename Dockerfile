@@ -1,5 +1,5 @@
 # 1. Start with an image that has Java 17 installed
-FROM openjdk:17-jre-slim
+FROM 17-jre-slim
 
 # 2. Set the working directory inside the container
 WORKDIR /usr/src/app
@@ -12,3 +12,4 @@ RUN curl -LJO "https://github.com/lavalink-devs/Lavalink/releases/download/4.0.0
 
 # 4. Command to run when the container starts
 CMD ["java", "-jar", "Lavalink.jar"]
+
