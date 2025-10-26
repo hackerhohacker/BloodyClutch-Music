@@ -54,7 +54,7 @@ module.exports = {
         
         const embed = new EmbedBuilder()
             .setColor('#00ff00')
-            .setTitle('⏭️ queue cleared)
+            .setTitle('⏭️ Queue Cleared')
             .setDescription(`Skipped **${currentTrack?.title || 'Unknown'}**`)
             .addFields(
                 { name: '📋 Queue', value: `queue cleared`, inline: true },
