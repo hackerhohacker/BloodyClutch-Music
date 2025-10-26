@@ -1,13 +1,15 @@
-# 1. Start with a stable Debian image (reliable base)
-FROM debian:bookworm-slim
+# 1. Use the highly reliable Eclipse Temurin registry for a slim JRE 17
+# This avoids both the "not found" errors AND the memory-intensive apt-get install step.
+FROM eclipse-temurin:17-jre-focal
 
-# 2. Install Java 17 (This is allowed now because it's a Docker build step)
-RUN apt-get update && \
-    apt-get install -y openjdk-17-jre-headless && \
-    rm -rf /var/lib/apt/lists/*
-
-# 3. Set the working directory inside the container
+# 2. Set the working directory inside the container
 WORKDIR /usr/src/app
+
+# 3. Install cURL (since this base image might not have it)
+# We need this to download Lavalink in the next step.
+RUN apt-get update && \
+    apt-get install -y curl && \
+    rm -rf /var/lib/apt/lists/*
 
 # 4. Download Lavalink and the LavaSrc plugin
 RUN curl -LJO "https://github.com/lavalink-devs/Lavalink/releases/download/4.0.0/Lavalink.jar" && \
