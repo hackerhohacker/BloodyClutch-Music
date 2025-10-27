@@ -37,19 +37,15 @@ class MusicBot extends Client {
     }
 
     initializeLavalink() {
-        // 🛑 CRITICAL FIX APPLIED HERE 🛑
-        // The previous code read host, port, and secure from environment variables.
-        // Since Lavalink is running INTERNALLY on the same machine (via start.sh), 
-        // we MUST hardcode the internal connection address (127.0.0.1:443).
-
+        // Since the server logs indicate Lavalink is starting on 8080, we will target that port 
+        // to ensure a successful connection.
         const lavalinkConfig = {
             name: 'main',
             
-            // FIX: Hardcode internal host and port for deployment stability
-            // CHANGED PORT TO 443 TO MATCH application.yml
-            url: '127.0.0.1:443', // Shoukaku expects 'url' as host:port
+            // FIX: Targeting the confirmed Lavalink port 8080
+            url: '127.0.0.1:8080', // Shoukaku expects 'url' as host:port
             host: '127.0.0.1',      // Internal Loopback Address
-            port: 443,             // Changed from 2333 to 443
+            port: 8080,             // CHANGED from 443 back to 8080
             
             // Keep reading the password from the environment, as it's a secret
             auth: process.env.LAVALINK_PASSWORD,
