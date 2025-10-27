@@ -1,10 +1,3 @@
----
-
-## 3. Lavalink Node Configuration (`src/utils/musicUtils.js`)
-
-This file defines the connection details your bot uses. It uses the loopback address (`127.0.0.1`) and the fixed port (`443`).
-
-```javascript:src/utils/musicUtils.js
 const nodes = [
     {
         name: 'render-internal-node',
