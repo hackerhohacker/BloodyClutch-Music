@@ -1,19 +1,23 @@
 server:
-  port: 8080 # CHANGED: Render often defaults to 8080 for web services
+  # CHANGED: Lavalink server will now listen on port 443
+  port: 443 
   address: 0.0.0.0
 
 lavalink:
   server:
-    password: "bloodyclutch123"
-    # --- CRITICAL CHANGE 1: DISABLE THE BROKEN BUILT-IN YOUTUBE SOURCE ---
+    # CRITICAL FIX: This password MUST match the LAVALINK_PASSWORD environment variable exactly.
+    password: "bloodyclutch123" 
+    
+    # CRITICAL CHANGE: Disable the broken built-in YouTube source and configure other sources
     sources:
-      youtube: false
+      youtube: false 
       bandcamp: true
       soundcloud: true
       twitch: true
       vimeo: true
       http: true
       local: false
+      
     bufferDurationMs: 400
     frameBufferDurationMs: 5000
     youtubePlaylistLoadLimit: 6
@@ -22,8 +26,8 @@ lavalink:
     soundcloudSearchEnabled: true
     gc-warnings: true
   
-  # --- CRITICAL CHANGE 2: ADD THE YOUTUBE PLUGIN CONFIGURATION ONLY ---
+  # CRITICAL CHANGE: Configuration for the external Lavalink YouTube plugin
   plugins:
     # Lavalink will try to download this dependency during startup
-    - dependency: "dev.lavalink.youtube:youtube-plugin:1.15.0" 
+    - dependency: "dev.lavalink.youtube:youtube-plugin:1.15.0"  
       repository: "https://maven.lavalink.dev/releases"
