@@ -1,5 +1,5 @@
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
-const { Kazagumo, Plugins } = require('kazagumo');
+const { Kazagumo } = require('kazagumo');
 const { Connectors } = require('shoukaku');
 const fs = require('fs');
 const path = require('path');
@@ -19,11 +19,10 @@ const client = new Client({
     ],
 });
 
-// State to track Lavalink connection status
 client.isLavalinkReady = false; 
 
-// --- Lavalink Initialization (THE CRITICAL FIX IS HERE) ---
-// Kazagumo expects only 2 arguments when nodes are defined in the options object.
+// --- Lavalink Initialization: FIX FOR "nodes is not iterable" ---
+// This constructor MUST take ONLY 2 arguments total: the options object and the connector.
 client.kazagumo = new Kazagumo({
     defaultSearchEngine: 'youtube',
     send: (guildId, payload) => {
@@ -57,7 +56,7 @@ client.kazagumo.shoukaku.on('debug', (name, info) => {
 });
 
 
-// --- Command and Event Handling ---
+// --- Command and Event Handling (Standard Discord.js boilerplate) ---
 client.commands = new Collection();
 
 const commandsPath = path.join(__dirname, 'commands');
@@ -87,7 +86,7 @@ for (const file of eventFiles) {
     }
 }
 
-// --- Login to Discord with Error Handling ---
+// --- Login to Discord with robust Error Handling ---
 try {
     if (!process.env.DISCORD_TOKEN) {
         throw new Error("DISCORD_TOKEN environment variable is not set. Cannot log in.");
@@ -96,5 +95,6 @@ try {
 } catch (error) {
     console.error("CRITICAL ERROR: Failed to start Discord Client. Check your DISCORD_TOKEN and bot permissions.");
     console.error(error);
-    process.exit(1); // Exit the process clearly if login fails
+    // Exit clearly to prevent silent failures
+    process.exit(1); 
 }
