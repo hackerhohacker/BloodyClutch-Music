@@ -25,7 +25,7 @@ class MusicBot extends Client {
         this.config = {
             prefix: process.env.PREFIX || '!',
             ownerId: process.env.OWNER_ID,
-            clientId: process.env.CLIENT_ID // Your Discord Bot's Client ID
+            clientId: process.env.CLIENT_ID // Your Discord Bot's Client ID (1363433902940880966)
         };
 
         // Initialize Lavalink
@@ -37,24 +37,31 @@ class MusicBot extends Client {
     }
 
     initializeLavalink() {
-        // --- CRITICAL FIXES: Use Env Vars and Add userId ---
+        const userId = this.config.clientId; // Store for config and logging
+
         const lavalinkConfig = {
             name: 'main',
-            // 1. Read directly from environment variables (LAVALINK_HOST, PORT, SECURE are now correct on Render)
+            // Read connection details from environment variables
             url: `${process.env.LAVALINK_HOST}:${process.env.LAVALINK_PORT}`, 
             host: process.env.LAVALINK_HOST,       
             port: parseInt(process.env.LAVALINK_PORT),      
-            auth: process.env.LAVALINK_PASSWORD,
-            secure: process.env.LAVALINK_SECURE === 'true', // Reads the 'true' string and converts to boolean
+            auth: process.env.LAVALINK_PASSWORD, // Must be 'bloodyclutch123'
+            secure: process.env.LAVALINK_SECURE === 'true', // Must be 'true' for Render's 443 port
             
-            // 2. MANDATORY FIX: Pass the Discord Bot's Client ID as the User-Id for Lavalink v4 authentication
-            userId: this.config.clientId, // Reads the CLIENT_ID from the config object
+            // MANDATORY FIX: Pass the Discord Bot's Client ID as the User-Id for Lavalink v4 authentication
+            userId: userId,
         };
 
         const logUrl = `${lavalinkConfig.secure ? 'wss' : 'ws'}://${lavalinkConfig.url}`;
-
-        console.log(`🔗 Connecting to Lavalink: ${logUrl}`);
-        console.log(`🔐 Using secure connection: ${lavalinkConfig.secure}`);
+        
+        // --- ADDED DEBUGGING LOGS ---
+        console.log('--- Lavalink Connection Details ---');
+        console.log(`🔗 Target URL: ${logUrl}`);
+        console.log(`🔐 Secure: ${lavalinkConfig.secure}`);
+        console.log(`🆔 User ID (Bot Client ID): ${lavalinkConfig.userId}`);
+        console.log(`🔑 Auth Token Length: ${lavalinkConfig.auth ? lavalinkConfig.auth.length : 0}`);
+        console.log('-----------------------------------');
+        // -----------------------------
 
         // Added custom Shoukaku options for robustness (keep these)
         const shoukakuOptions = {
