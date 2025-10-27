@@ -36,20 +36,25 @@ class MusicBot extends Client {
         this.loadEvents();
     }
 
-  initializeLavalink() {
-        // IMPORTANT: Use the 'url' property as host:port without the protocol (ws/wss)
-        const connectionUrl = `${process.env.LAVALINK_HOST}:${process.env.LAVALINK_PORT}`;
+    initializeLavalink() {
+        // 🛑 CRITICAL FIX APPLIED HERE 🛑
+        // The previous code read host, port, and secure from environment variables.
+        // Since Lavalink is running INTERNALLY on the same machine (via start.sh), 
+        // we MUST hardcode the internal connection address (127.0.0.1:2333).
 
         const lavalinkConfig = {
             name: 'main',
-            url: connectionUrl, // Shoukaku expects 'url' but must be host:port (no protocol)
             
-            // Adding host and port back in for maximum compatibility with older versions
-            host: process.env.LAVALINK_HOST, 
-            port: parseInt(process.env.LAVALINK_PORT),
+            // FIX: Hardcode internal host and port for deployment stability
+            url: '127.0.0.1:2333', // Shoukaku expects 'url' as host:port
+            host: '127.0.0.1',      // Internal Loopback Address
+            port: 2333,             // Default Lavalink Port
             
+            // Keep reading the password from the environment, as it's a secret
             auth: process.env.LAVALINK_PASSWORD,
-            secure: process.env.LAVALINK_SECURE === 'true'
+            
+            // FIX: Internal connections are NOT secure (no SSL/TLS)
+            secure: false
         };
 
         // For console logging, we display the full URL with protocol
@@ -70,6 +75,10 @@ class MusicBot extends Client {
         // Lavalink event listeners (keep these the same)
         this.kazagumo.shoukaku.on('ready', (name) => {
             console.log(`✅ Lavalink ${name} is ready!`);
+            // Add a check here if the bot is ready to register commands
+            if (this.isReady()) {
+                this.registerSlashCommands();
+            }
         });
 
         this.kazagumo.shoukaku.on('error', (name, error) => {
@@ -93,6 +102,7 @@ class MusicBot extends Client {
             console.log(`🔄 Lavalink ${name} reconnecting. ${reconnectsLeft} attempts left, next in ${reconnectInterval}ms`);
         });
     }
+
     loadCommands() {
         // Load slash commands
         const slashCommandsPath = path.join(__dirname, 'commands', 'slash');
@@ -187,6 +197,7 @@ class MusicBot extends Client {
         try {
             await this.login(process.env.DISCORD_TOKEN);
             console.log('🤖 Bot is starting...');
+            // Check for command registration on ready event in initializeLavalink
         } catch (error) {
             console.error('❌ Failed to start the bot:', error);
         }
