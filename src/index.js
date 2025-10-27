@@ -21,7 +21,7 @@ const client = new Client({
 
 client.isLavalinkReady = false; 
 
-// --- Lavalink Initialization (The Critical Fix for TypeError) ---
+// --- Lavalink Initialization: FIX FOR "TypeError: nodes is not iterable" ---
 // Constructor MUST be called with only TWO arguments: the options object and the connector.
 client.kazagumo = new Kazagumo({
     defaultSearchEngine: 'youtube',
@@ -51,18 +51,13 @@ client.kazagumo.shoukaku.on('close', (name, code, reason) => {
     client.isLavalinkReady = false;
 });
 
-client.kazagumo.shoukaku.on('debug', (name, info) => {
-    // console.log(`[DEBUG] Lavalink Node: ${name}`, info);
-});
-
-
-// --- Command and Event Handling (Standard Discord.js boilerplate) ---
+// --- Command and Event Handling (Standard boilerplate) ---
 client.commands = new Collection();
 const commandsPath = path.join(__dirname, 'commands');
 const slashCommandsPath = path.join(commandsPath, 'slash');
 const eventsPath = path.join(__dirname, 'events');
 
-// Load Commands (error handling added for stability)
+// Load Commands
 try {
     const commandFiles = fs.readdirSync(slashCommandsPath).filter(file => file.endsWith('.js'));
     for (const file of commandFiles) {
@@ -72,11 +67,10 @@ try {
         }
     }
 } catch (e) {
-    // If the directory doesn't exist, this prevents a crash
     console.warn("Could not load commands. Ensure 'src/commands/slash' directory exists.");
 }
 
-// Load Events (error handling added for stability)
+// Load Events
 try {
     const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
     for (const file of eventFiles) {
@@ -88,7 +82,6 @@ try {
         }
     }
 } catch (e) {
-    // If the directory doesn't exist, this prevents a crash
     console.warn("Could not load events. Ensure 'src/events' directory exists.");
 }
 
