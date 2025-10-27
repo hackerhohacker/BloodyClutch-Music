@@ -1,8 +1,8 @@
-***
+---
 
 ## 2. Lavalink Configuration (`application.yml`)
 
-This file **forces Lavalink to run on port `443`** to match the Node.js bot's configuration, solving the port mismatch error.
+This file **forces Lavalink to run on port `443`** to match the bot's internal configuration, solving the port mismatch.
 
 ```yaml:application.yml
 server:
