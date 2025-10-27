@@ -1,16 +1,15 @@
 server:
-  # CHANGED: Lavalink server will now listen on port 443
-  port: 443 
+  # Sets the custom port
+  port: 443
   address: 0.0.0.0
 
 lavalink:
   server:
-    # CRITICAL FIX: This password MUST match the LAVALINK_PASSWORD environment variable exactly.
-    password: "bloodyclutch123" 
-    
-    # CRITICAL CHANGE: Disable the broken built-in YouTube source and configure other sources
+    # CRITICAL FIX: Password must match the client config exactly
+    password: "bloodyclutch123"
+
     sources:
-      youtube: false 
+      youtube: false # Disabled because you use the plugin
       bandcamp: true
       soundcloud: true
       twitch: true
@@ -26,8 +25,7 @@ lavalink:
     soundcloudSearchEnabled: true
     gc-warnings: true
   
-  # CRITICAL CHANGE: Configuration for the external Lavalink YouTube plugin
   plugins:
-    # Lavalink will try to download this dependency during startup
-    - dependency: "dev.lavalink.youtube:youtube-plugin:1.15.0"  
+    # YouTube Plugin dependency
+    - dependency: "dev.lavalink.youtube:youtube-plugin:1.15.0"
       repository: "https://maven.lavalink.dev/releases"
