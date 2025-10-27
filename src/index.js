@@ -22,8 +22,7 @@ const client = new Client({
 // State to track Lavalink connection status
 client.isLavalinkReady = false; 
 
-// --- Lavalink Initialization (FIXED ARGUMENTS) ---
-// Kazagumo constructor takes (options, connector, nodes)
+// --- Lavalink Initialization (FINAL FIX: Nodes inside options object) ---
 client.kazagumo = new Kazagumo({
     defaultSearchEngine: 'youtube',
     send: (guildId, payload) => {
@@ -31,13 +30,15 @@ client.kazagumo = new Kazagumo({
         if (guild) guild.shard.send(payload);
     },
     plugins: [],
-    // CRITICAL FIX: The 'nodes' array must be passed *separately* as the third argument in this format.
-}, new Connectors.DiscordJS(client), nodes);
+    // CRITICAL FIX: Include the 'nodes' array directly inside the options object
+    nodes: nodes, 
+}, new Connectors.DiscordJS(client)); // Connector is the second argument
 
 
 // --- Lavalink Events ---
 client.kazagumo.shoukaku.on('ready', (name) => {
-    console.log(`✅ Lavalink Node: ${name} connected successfully.`);
+    // This is the line we want to see in the logs!
+    console.log(`✅ Lavalink Node: ${name} connected successfully.`); 
     client.isLavalinkReady = true;
 });
 
