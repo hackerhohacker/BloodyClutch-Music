@@ -5,7 +5,7 @@ echo "Starting Lavalink..."
 java -jar Lavalink.jar &
 
 # 2. Wait a moment for Lavalink to be ready
-# CRITICAL FIX: Increased sleep time to 45 seconds to wait for Lavalink's 40-second startup.
+# CRITICAL FIX: Increased sleep time to 45 seconds to wait for Lavalink's 40+ second startup.
 sleep 45
 
 # 3. Start the Discord Bot application
