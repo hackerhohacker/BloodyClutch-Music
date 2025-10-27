@@ -55,11 +55,16 @@ class MusicBot extends Client {
         const logUrl = `${lavalinkConfig.secure ? 'wss' : 'ws'}://${lavalinkConfig.url}`;
         
         // --- ADDED DEBUGGING LOGS ---
+        const authValue = lavalinkConfig.auth;
+        const authLength = authValue ? authValue.length : 0;
+        const authMasked = authValue ? `${authValue.substring(0, 3)}...${authValue.substring(authValue.length - 3)}` : 'NOT SET';
+
         console.log('--- Lavalink Connection Details ---');
         console.log(`🔗 Target URL: ${logUrl}`);
         console.log(`🔐 Secure: ${lavalinkConfig.secure}`);
         console.log(`🆔 User ID (Bot Client ID): ${lavalinkConfig.userId}`);
-        console.log(`🔑 Auth Token Length: ${lavalinkConfig.auth ? lavalinkConfig.auth.length : 0}`);
+        console.log(`🔑 Auth Token (Masked): ${authMasked}`);
+        console.log(`🔑 Auth Token Length: ${authLength} (Should be 15)`);
         console.log('-----------------------------------');
         // -----------------------------
 
