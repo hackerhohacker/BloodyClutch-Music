@@ -38,19 +38,18 @@ class MusicBot extends Client {
 
     initializeLavalink() {
         // 🛑 CRITICAL FIX APPLIED HERE 🛑
-        // The previous code read host, port, and secure from environment variables.
-        // Since Lavalink is running INTERNALLY on the same machine (via start.sh), 
-        // we MUST hardcode the internal connection address (127.0.0.1:2333).
-
+        // Changed port from 2333 to 8080 to match the port Lavalink binds to on Render, 
+        // as shown in the previous log entry: "Undertow started on port(s) 8080"
         const lavalinkConfig = {
             name: 'main',
             
-            // FIX: Hardcode internal host and port for deployment stability
-            url: '127.0.0.1:2333', // Shoukaku expects 'url' as host:port
+            // FIX: Use 8080, which is the port Lavalink is actually starting on
+            url: '127.0.0.1:8080', // Shoukaku expects 'url' as host:port
             host: '127.0.0.1',      // Internal Loopback Address
-            port: 2333,             // Default Lavalink Port
+            port: 8080,             // Default Lavalink Port
             
             // Keep reading the password from the environment, as it's a secret
+            // NOTE: Ensure LAVALINK_PASSWORD in your .env or Render secrets is "bloodyclutch123"
             auth: process.env.LAVALINK_PASSWORD,
             
             // FIX: Internal connections are NOT secure (no SSL/TLS)
