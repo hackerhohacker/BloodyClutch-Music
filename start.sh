@@ -11,6 +11,8 @@ java -jar Lavalink.jar > $LAVALINK_LOG 2>&1 &
 echo "Sleeping for 120 seconds to allow full Lavalink and Discord login startup..."
 sleep 120
 
-# --- 3. Start the Discord Bot in the Foreground ---
-echo "Starting Discord bot via npm start..."
-npm start
+# --- 3. Start the Discord Bot and take over the shell process ---
+echo "Starting Discord bot via exec npm start..."
+# CRITICAL FIX: 'exec' ensures the shell process is replaced by the npm start process,
+# which keeps the container alive until the bot is stopped.
+exec npm start
