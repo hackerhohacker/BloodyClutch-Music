@@ -1,12 +1,18 @@
 #!/bin/bash
 
-# Start Lavalink in the background
-java -jar Lavalink.jar &
+# Define the log file for Lavalink output
+LAVALINK_LOG="lavalink.log"
 
-# Wait 2 minutes for Lavalink to fully start and for the Discord client to connect.
-echo "Lavalink started in background. Sleeping for 120 seconds to allow full startup..."
+# --- 1. Start Lavalink in the Background ---
+echo "Starting Lavalink in background. Output redirected to $LAVALINK_LOG"
+# Use a simple background command to avoid complex PID tracking for now
+java -jar Lavalink.jar > $LAVALINK_LOG 2>&1 &
+
+# --- 2. Wait for Lavalink to be fully ready ---
+echo "Sleeping for 120 seconds to allow full Lavalink and Discord login startup..."
 sleep 120
 
-# Start the Discord bot in the foreground
-echo "Starting Discord bot..."
+# --- 3. Start the Discord Bot in the Foreground ---
+echo "Starting Discord bot via npm start..."
+# This command must be the final command to keep the container running
 npm start
