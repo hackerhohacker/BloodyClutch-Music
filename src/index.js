@@ -25,7 +25,7 @@ class MusicBot extends Client {
         this.config = {
             prefix: process.env.PREFIX || '!',
             ownerId: process.env.OWNER_ID,
-            clientId: process.env.CLIENT_ID // Your Discord Bot's Client ID (1363433902940880966)
+            clientId: process.env.CLIENT_ID
         };
 
         // Initialize Lavalink
@@ -37,53 +37,40 @@ class MusicBot extends Client {
     }
 
     initializeLavalink() {
-        const userId = this.config.clientId; // Store for config and logging
+        // 🛑 CRITICAL FIX APPLIED HERE 🛑
+        // The previous code read host, port, and secure from environment variables.
+        // Since Lavalink is running INTERNALLY on the same machine (via start.sh), 
+        // we MUST hardcode the internal connection address (127.0.0.1:443).
 
         const lavalinkConfig = {
             name: 'main',
-            // Read connection details from environment variables
-            url: `${process.env.LAVALINK_HOST}:${process.env.LAVALINK_PORT}`, 
-            host: process.env.LAVALINK_HOST,       
-            port: parseInt(process.env.LAVALINK_PORT),      
-            auth: process.env.LAVALINK_PASSWORD, // Must be 'bloodyclutch123'
-            secure: process.env.LAVALINK_SECURE === 'true', // Must be 'true' for Render's 443 port
             
-            // MANDATORY FIX: Pass the Discord Bot's Client ID as the User-Id for Lavalink v4 authentication
-            userId: userId,
+            // FIX: Hardcode internal host and port for deployment stability
+            // CHANGED PORT TO 443 TO MATCH application.yml
+            url: '127.0.0.1:443', // Shoukaku expects 'url' as host:port
+            host: '127.0.0.1',      // Internal Loopback Address
+            port: 443,             // Changed from 2333 to 443
+            
+            // Keep reading the password from the environment, as it's a secret
+            auth: process.env.LAVALINK_PASSWORD,
+            
+            // FIX: Internal connections are NOT secure (no SSL/TLS)
+            secure: false
         };
 
+        // For console logging, we display the full URL with protocol
         const logUrl = `${lavalinkConfig.secure ? 'wss' : 'ws'}://${lavalinkConfig.url}`;
-        
-        // --- ADDED DEBUGGING LOGS ---
-        const authValue = lavalinkConfig.auth;
-        const authLength = authValue ? authValue.length : 0;
-        const authMasked = authValue ? `${authValue.substring(0, 3)}...${authValue.substring(authValue.length - 3)}` : 'NOT SET';
 
-        console.log('--- Lavalink Connection Details ---');
-        console.log(`🔗 Target URL: ${logUrl}`);
-        console.log(`🔐 Secure: ${lavalinkConfig.secure}`);
-        console.log(`🆔 User ID (Bot Client ID): ${lavalinkConfig.userId}`);
-        console.log(`🔑 Auth Token (Masked): ${authMasked}`);
-        console.log(`🔑 Auth Token Length: ${authLength} (Should be 15)`);
-        console.log('-----------------------------------');
-        // -----------------------------
+        console.log(`🔗 Connecting to Lavalink: ${logUrl}`);
+        console.log(`🔐 Using secure connection: ${lavalinkConfig.secure}`);
 
-        // Added custom Shoukaku options for robustness (keep these)
-        const shoukakuOptions = {
-            reconnectTries: 30, 
-            reconnectInterval: 10000, 
-            timeout: 60000, 
-            resume: false,
-        };
-        
-        // Ensure Shoukaku knows the user-id from the start using the client's own ID
+        // The correct array structure for the final argument
         this.kazagumo = new Kazagumo({
             defaultSearchEngine: 'youtube',
             send: (guildId, payload) => {
                 const guild = this.guilds.cache.get(guildId);
                 if (guild) guild.shard.send(payload);
-            },
-            shoukaku: shoukakuOptions 
+            }
         }, new Connectors.DiscordJS(this), [lavalinkConfig]);
 
         // Lavalink event listeners (keep these the same)
@@ -118,15 +105,93 @@ class MusicBot extends Client {
     }
 
     loadCommands() {
-        // ... (rest of loadCommands function)
+        // Load slash commands
+        const slashCommandsPath = path.join(__dirname, 'commands', 'slash');
+        if (fs.existsSync(slashCommandsPath)) {
+            const slashCommandFiles = fs.readdirSync(slashCommandsPath).filter(file => file.endsWith('.js'));
+            
+            for (const file of slashCommandFiles) {
+                const filePath = path.join(slashCommandsPath, file);
+                const command = require(filePath);
+                
+                if ('data' in command && 'execute' in command) {
+                    this.slashCommands.set(command.data.name, command);
+                    console.log(`📁 Loaded slash command: ${command.data.name}`);
+                } else {
+                    console.log(`⚠️ The command at ${filePath} is missing a required "data" or "execute" property.`);
+                }
+            }
+        }
+
+        // Load prefix commands
+        const prefixCommandsPath = path.join(__dirname, 'commands', 'prefix');
+        if (fs.existsSync(prefixCommandsPath)) {
+            const prefixCommandFiles = fs.readdirSync(prefixCommandsPath).filter(file => file.endsWith('.js'));
+            
+            for (const file of prefixCommandFiles) {
+                const filePath = path.join(prefixCommandsPath, file);
+                const command = require(filePath);
+                
+                if ('name' in command && 'execute' in command) {
+                    this.prefixCommands.set(command.name, command);
+                    if (command.aliases) {
+                        command.aliases.forEach(alias => {
+                            this.prefixCommands.set(alias, command);
+                        });
+                    }
+                    console.log(`📁 Loaded prefix command: ${command.name}`);
+                } else {
+                    console.log(`⚠️ The command at ${filePath} is missing a required "name" or "execute" property.`);
+                }
+            }
+        }
     }
 
     loadEvents() {
-        // ... (rest of loadEvents function)
+        const eventsPath = path.join(__dirname, 'events');
+        if (fs.existsSync(eventsPath)) {
+            const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
+            
+            for (const file of eventFiles) {
+                const filePath = path.join(eventsPath, file);
+                const event = require(filePath);
+                
+                if (event.once) {
+                    this.once(event.name, (...args) => event.execute(...args));
+                } else {
+                    this.on(event.name, (...args) => event.execute(...args));
+                }
+                console.log(`📁 Loaded event: ${event.name}`);
+            }
+        }
     }
 
     async registerSlashCommands() {
-        // ... (rest of registerSlashCommands function)
+        if (!this.config.clientId) {
+            console.error('❌ CLIENT_ID is required to register slash commands!');
+            return;
+        }
+
+        const commands = [];
+        this.slashCommands.forEach(command => {
+            commands.push(command.data.toJSON());
+        });
+
+        const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
+
+        try {
+            console.log('🔄 Started refreshing application (/) commands globally...');
+
+            await rest.put(
+                Routes.applicationCommands(this.config.clientId),
+                { body: commands }
+            );
+
+            console.log(`✅ Successfully registered ${commands.length} application (/) commands globally.`);
+            console.log('⏰ Global commands may take up to 1 hour to appear in all servers.');
+        } catch (error) {
+            console.error('❌ Error registering slash commands:', error);
+        }
     }
 
     async start() {
@@ -145,7 +210,50 @@ class MusicBot extends Client {
  * Usage: node src/index.js --deploy
  */
 async function deployCommands() {
-    // ... (rest of deployCommands function)
+    const commands = [];
+    
+    // Load all slash commands
+    const commandsPath = path.join(__dirname, 'commands', 'slash');
+    if (fs.existsSync(commandsPath)) {
+        const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+
+        for (const file of commandFiles) {
+            const filePath = path.join(commandsPath, file);
+            const command = require(filePath);
+            
+            if ('data' in command && 'execute' in command) {
+                commands.push(command.data.toJSON());
+                console.log(`📁 Loaded command: ${command.data.name}`);
+            } else {
+                console.log(`⚠️ The command at ${filePath} is missing a required "data" or "execute" property.`);
+            }
+        }
+    }
+
+    if (!process.env.CLIENT_ID) {
+        console.error('❌ CLIENT_ID is required to deploy slash commands!');
+        process.exit(1);
+    }
+
+    // Construct and prepare an instance of the REST module
+    const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
+
+    try {
+        console.log(`🔄 Started refreshing ${commands.length} application (/) commands globally.`);
+
+        // The put method is used to fully refresh all commands globally
+        const data = await rest.put(
+            Routes.applicationCommands(process.env.CLIENT_ID),
+            { body: commands },
+        );
+
+        console.log(`✅ Successfully reloaded ${data.length} application (/) commands globally.`);
+        console.log('⏰ Global commands may take up to 1 hour to appear in all servers.');
+        process.exit(0);
+    } catch (error) {
+        console.error('❌ Error deploying commands:', error);
+        process.exit(1);
+    }
 }
 
 // Check if script is run with --deploy flag
