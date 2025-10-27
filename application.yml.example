@@ -1,31 +1,32 @@
 server:
-  # Sets the custom port
   port: 443
   address: 0.0.0.0
+  ssl:
+    enabled: false
 
 lavalink:
   server:
-    # CRITICAL FIX: Password must match the client config exactly
     password: "bloodyclutch123"
-
     sources:
-      youtube: false # Disabled because you use the plugin
+      youtube: true
       bandcamp: true
       soundcloud: true
       twitch: true
       vimeo: true
-      http: true
-      local: false
-      
-    bufferDurationMs: 400
-    frameBufferDurationMs: 5000
-    youtubePlaylistLoadLimit: 6
-    playerUpdateInterval: 5
-    youtubeSearchEnabled: true
-    soundcloudSearchEnabled: true
-    gc-warnings: true
-  
-  plugins:
-    # YouTube Plugin dependency
-    - dependency: "dev.lavalink.youtube:youtube-plugin:1.15.0"
-      repository: "https://maven.lavalink.dev/releases"
+      mixer: true
+      youtubeMusic: true
+      spotify: true
+
+  # The filter timeout in seconds.
+  # The default is 5 seconds, which is too low for some large tracks.
+  # Setting it to 10 seconds is a safe value.
+  filter-timeout: 10
+
+logging:
+  level:
+    root: INFO
+    lavalink: INFO
+
+plugins:
+  - dependency: com.github.topi314.lavasrc:lavasrc-plugin:4.8.1
+    repository: https://maven.topi.moe/releases
