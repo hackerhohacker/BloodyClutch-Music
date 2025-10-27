@@ -30,7 +30,7 @@ client.kazagumo = new Kazagumo({
         if (guild) guild.shard.send(payload);
     },
     plugins: [],
-    // CRITICAL FIX: Nodes are here, inside the options object.
+    // Nodes are correctly passed inside the options object.
     nodes: nodes, 
 }, new Connectors.DiscordJS(client)); // Connector is the 2nd and final argument.
 
@@ -56,16 +56,15 @@ client.kazagumo.shoukaku.on('debug', (name, info) => {
 });
 
 
-// --- Command and Event Handling ---
+// --- Command and Event Handling (NO CHANGES HERE) ---
 client.commands = new Collection();
 
-// Load commands
 const commandsPath = path.join(__dirname, 'commands');
-const slashCommandsCommandsPath = path.join(commandsPath, 'slash');
-const commandFiles = fs.readdirSync(slashCommandsCommandsPath).filter(file => file.endsWith('.js'));
+const slashCommandsPath = path.join(commandsPath, 'slash');
+const commandFiles = fs.readdirSync(slashCommandsPath).filter(file => file.endsWith('.js'));
 
 for (const file of commandFiles) {
-    const filePath = path.join(slashCommandsCommandsPath, file);
+    const filePath = path.join(slashCommandsPath, file);
     const command = require(filePath);
     if ('data' in command && 'execute' in command) {
         client.commands.set(command.data.name, command);
@@ -74,7 +73,6 @@ for (const file of commandFiles) {
     }
 }
 
-// Load events
 const eventsPath = path.join(__dirname, 'events');
 const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
 
@@ -88,5 +86,14 @@ for (const file of eventFiles) {
     }
 }
 
-// Login to Discord
-client.login(process.env.DISCORD_TOKEN);
+// --- Login to Discord with Error Handling ---
+try {
+    if (!process.env.DISCORD_TOKEN) {
+        throw new Error("DISCORD_TOKEN environment variable is not set. Cannot log in.");
+    }
+    client.login(process.env.DISCORD_TOKEN);
+} catch (error) {
+    console.error("CRITICAL ERROR: Failed to start Discord Client. Check your DISCORD_TOKEN and bot permissions.");
+    console.error(error);
+    process.exit(1); // Exit the process clearly if login fails
+}
