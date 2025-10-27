@@ -1,4 +1,5 @@
-// This file sets the configuration for the Lavalink client nodes.
+// This file sets the configuration for the Kazagumo (Lavalink Client) library.
+const { Kazagumo } = require('kazagumo');
 
 const nodes = [
     {
@@ -13,6 +14,11 @@ const nodes = [
         secure: false, 
     },
 ];
+
+const kazagumo = new Kazagumo({
+    // ... other options
+    nodes: nodes,
+});
 
 // Export the nodes array so your index.js can use it
 module.exports = { 
