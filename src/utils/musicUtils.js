@@ -1,16 +1,12 @@
-// This file exports the Lavalink node configuration array.
-
 const nodes = [
     {
-        name: 'render-internal-node', 
+        name: 'render-internal-node',
         host: '127.0.0.1', 
-        port: 443, 
-        auth: 'bloodyclutch123', 
-        secure: false, 
+        port: 443,        // Must match application.yml
+        auth: 'bloodyclutch123', // Must match application.yml
     },
 ];
 
-// CRITICAL FIX: Only export the nodes array. Kazagumo initialization is moved to index.js.
-module.exports = { 
-    nodes 
+module.exports = {
+    nodes,
 };
