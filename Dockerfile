@@ -23,6 +23,9 @@ RUN curl -LJO "https://github.com/lavalink-devs/Lavalink/releases/download/4.0.0
 # 6. Copy all your project files (including your bot's code, start.sh, and package.json)
 COPY . .
 
+# CRITICAL CACHE BUSTER: Force the build layer to recognize the new src/bot.js file
+RUN cat src/bot.js > /dev/null
+
 # 7. FIX: Convert start.sh to use Linux line endings (LF)
 RUN dos2unix start.sh
 
