@@ -4,7 +4,7 @@ const { Connectors } = require('shoukaku');
 const fs = require('fs');
 const path = require('path');
 
-// Import the synchronized Lavalink node configuration
+// 1. Imports the nodes ARRAY from the utility file
 const { nodes } = require('./utils/musicUtils'); 
 
 // Load environment variables (TOKEN, CLIENT_ID, etc.)
@@ -22,7 +22,8 @@ const client = new Client({
 // State to track Lavalink connection status
 client.isLavalinkReady = false; 
 
-// --- Lavalink Initialization (FINAL CORRECT STRUCTURE) ---
+// --- Lavalink Initialization (THE CRITICAL FIX IS HERE) ---
+// Kazagumo expects only 2 arguments when nodes are defined in the options object.
 client.kazagumo = new Kazagumo({
     defaultSearchEngine: 'youtube',
     send: (guildId, payload) => {
@@ -30,7 +31,7 @@ client.kazagumo = new Kazagumo({
         if (guild) guild.shard.send(payload);
     },
     plugins: [],
-    // Nodes are correctly passed inside the options object.
+    // CRITICAL FIX: The nodes array is correctly inside the options object.
     nodes: nodes, 
 }, new Connectors.DiscordJS(client)); // Connector is the 2nd and final argument.
 
@@ -56,7 +57,7 @@ client.kazagumo.shoukaku.on('debug', (name, info) => {
 });
 
 
-// --- Command and Event Handling (NO CHANGES HERE) ---
+// --- Command and Event Handling ---
 client.commands = new Collection();
 
 const commandsPath = path.join(__dirname, 'commands');
