@@ -5,7 +5,8 @@ echo "Starting Lavalink..."
 java -jar Lavalink.jar &
 
 # 2. Wait a moment for Lavalink to be ready
-sleep 10
+# INCREASED SLEEP TIME: Set to 30 seconds to give Lavalink enough time to fully initialize.
+sleep 30
 
 # 3. Start the Discord Bot (Use the CORRECT file name here)
 echo "Starting Discord Bot application..."
