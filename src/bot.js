@@ -1,5 +1,6 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 const { Kazagumo } = require('kazagumo');
+const express = require('express'); // 1. IMPORT EXPRESS FOR THE RENDER HACK
 
 // ------------------------------------
 // 1. DISCORD CLIENT INITIALIZATION
@@ -15,7 +16,7 @@ const client = new Client({
 });
 
 // ------------------------------------
-// 2. LAVALINK NODE CONFIGURATION (THE FIX!)
+// 2. LAVALINK NODE CONFIGURATION (The Array Fix)
 // ------------------------------------
 
 // CRITICAL FIX: The nodes MUST be defined as an ARRAY []
@@ -34,7 +35,6 @@ const nodes = [{
 const kazagumo = new Kazagumo(
     {
         defaultSearchEngine: 'youtube',
-        // Shoukaku/Kazagumo requires a 'send' function to communicate Discord voice updates
         send: (guildId, payload) => {
             const guild = client.guilds.cache.get(guildId);
             if (guild) guild.shard.send(payload);
@@ -48,19 +48,16 @@ const kazagumo = new Kazagumo(
 // 4. EVENT HANDLERS
 // ------------------------------------
 
-// Confirms Discord connection and initializes Kazagumo
 client.on('ready', () => {
     console.log(`Bot is ready! Logged in as ${client.user.tag}`);
     kazagumo.init(client);
 });
 
-// Lavalink connection status logging (for debugging)
 kazagumo.shoukaku.on('ready', (name) => console.log(`Lavalink Node ${name} is ready.`));
 kazagumo.shoukaku.on('error', (name, error) => console.error(`Lavalink Node ${name} error:`, error));
 
 // Example Command Handler
 client.on('messageCreate', async message => {
-    // Basic prefix command check
     if (message.author.bot || !message.content.startsWith('!')) return;
 
     const args = message.content.slice(1).trim().split(/ +/);
@@ -95,9 +92,28 @@ client.on('messageCreate', async message => {
             await player.play();
         }
     }
-}); // <--- FINAL CLOSING BRACKETS for the event handler
+}); 
 
 // ------------------------------------
-// 5. BOT LOGIN (THE ABSOLUTE LAST LINE)
+// 5. BOT LOGIN
 // ------------------------------------
 client.login(process.env.DISCORD_TOKEN);
+
+
+// ------------------------------------
+// 6. RENDER HEALTH CHECK HACK (REQUIRED FOR WEB SERVICE)
+// ------------------------------------
+const app = express();
+// Render sets the PORT variable, usually 10000
+const port = process.env.PORT || 10000;
+
+// Create a minimal web server that responds to health checks
+app.get('/', (req, res) => {
+    // This simple response satisfies Render's check, keeping the container alive.
+    res.send('Discord Bot is running and satisfying Render health checks!');
+});
+
+app.listen(port, () => {
+    console.log(`Web server running on port ${port} to satisfy Render health check.`);
+    // The bot's main process runs concurrently
+});
