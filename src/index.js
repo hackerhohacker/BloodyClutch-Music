@@ -30,7 +30,7 @@ client.kazagumo = new Kazagumo({
         if (guild) guild.shard.send(payload);
     },
     plugins: [],
-    // CRITICAL FIX: nodes array is correctly inside the options object.
+    // CRITICAL FIX: nodes array is correctly inside the options object (Argument 1).
     nodes: nodes, 
 }, new Connectors.DiscordJS(client)); // Connector is the 2nd and final argument.
 
