@@ -1,19 +1,25 @@
+***
+
+## 2. Lavalink Configuration (`application.yml`)
+
+This file **forces Lavalink to run on port `443`** to match the Node.js bot's configuration, solving the port mismatch error.
+
+```yaml:application.yml
 server:
-  port: 443   # <--- THIS IS THE CRITICAL FIX: Forces Lavalink to use port 443
+  port: 443   # CRITICAL FIX: Forces Lavalink to use port 443 for internal communication
   address: 0.0.0.0
   ssl:
     enabled: false
 
 lavalink:
   server:
-    password: "bloodyclutch123" # Must match bot config
+    password: "bloodyclutch123" # Must match bot config in src/utils/musicUtils.js
     sources:
       youtube: true
       bandcamp: true
       soundcloud: true
       twitch: true
       vimeo: true
-      mixer: true
       youtubeMusic: true
       spotify: true
 
@@ -27,4 +33,4 @@ logging:
 
 plugins:
   - dependency: com.github.topi314.lavasrc:lavasrc-plugin:4.8.1
-    repository: https://maven.topi.moe/releases
+    repository: [https://maven.topi.moe/releases](https://maven.topi.moe/releases)
