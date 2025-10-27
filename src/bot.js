@@ -1,6 +1,6 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 const { Kazagumo } = require('kazagumo');
-const express = require('express'); // 1. IMPORT EXPRESS FOR THE RENDER HACK
+const express = require('express'); 
 
 // ------------------------------------
 // 1. DISCORD CLIENT INITIALIZATION
@@ -115,5 +115,5 @@ app.get('/', (req, res) => {
 
 app.listen(port, () => {
     console.log(`Web server running on port ${port} to satisfy Render health check.`);
-    // The bot's main process runs concurrently
+    // The bot's main process runs concurrently with the web server
 });
