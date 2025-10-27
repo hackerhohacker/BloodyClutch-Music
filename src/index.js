@@ -25,7 +25,7 @@ class MusicBot extends Client {
         this.config = {
             prefix: process.env.PREFIX || '!',
             ownerId: process.env.OWNER_ID,
-            clientId: process.env.CLIENT_ID
+            clientId: process.env.CLIENT_ID // Your Discord Bot's Client ID
         };
 
         // Initialize Lavalink
@@ -37,15 +37,18 @@ class MusicBot extends Client {
     }
 
     initializeLavalink() {
-        // --- 🟢 CRITICAL FIX: Use the public hostname and secure connection ---
+        // --- CRITICAL FIXES: Use Env Vars and Add userId ---
         const lavalinkConfig = {
             name: 'main',
-            // Use the public URL as the host
-            url: 'music-node-xyz23.onrender.com:443', 
-            host: 'music-node-xyz23.onrender.com',      
-            port: 443,             // Use 443 (external HTTPS port)
+            // 1. Read directly from environment variables (LAVALINK_HOST, PORT, SECURE are now correct on Render)
+            url: `${process.env.LAVALINK_HOST}:${process.env.LAVALINK_PORT}`, 
+            host: process.env.LAVALINK_HOST,       
+            port: parseInt(process.env.LAVALINK_PORT),      
             auth: process.env.LAVALINK_PASSWORD,
-            secure: true           // <--- Set this to TRUE
+            secure: process.env.LAVALINK_SECURE === 'true', // Reads the 'true' string and converts to boolean
+            
+            // 2. MANDATORY FIX: Pass the Discord Bot's Client ID as the User-Id for Lavalink v4 authentication
+            userId: this.config.clientId, // Reads the CLIENT_ID from the config object
         };
 
         const logUrl = `${lavalinkConfig.secure ? 'wss' : 'ws'}://${lavalinkConfig.url}`;
@@ -61,6 +64,7 @@ class MusicBot extends Client {
             resume: false,
         };
         
+        // Ensure Shoukaku knows the user-id from the start using the client's own ID
         this.kazagumo = new Kazagumo({
             defaultSearchEngine: 'youtube',
             send: (guildId, payload) => {
