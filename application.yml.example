@@ -1,12 +1,12 @@
 server:
-  port: 443
+  port: 443   # <--- THIS IS THE CRITICAL FIX: Forces Lavalink to use port 443
   address: 0.0.0.0
   ssl:
     enabled: false
 
 lavalink:
   server:
-    password: "bloodyclutch123"
+    password: "bloodyclutch123" # Must match bot config
     sources:
       youtube: true
       bandcamp: true
@@ -18,8 +18,6 @@ lavalink:
       spotify: true
 
   # The filter timeout in seconds.
-  # The default is 5 seconds, which is too low for some large tracks.
-  # Setting it to 10 seconds is a safe value.
   filter-timeout: 10
 
 logging:
