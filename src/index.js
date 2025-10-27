@@ -1,10 +1,3 @@
----
-
-## 4. Discord Bot Logic (`src/index.js`) - The Final Code Fix
-
-This file contains the correction for the recurrent **`TypeError: nodes is not iterable`** error by structuring the `Kazagumo` constructor correctly.
-
-```javascript:src/index.js
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
 const { Kazagumo } = require('kazagumo');
 const { Connectors } = require('shoukaku');
@@ -28,7 +21,7 @@ const client = new Client({
 
 client.isLavalinkReady = false; 
 
-// --- Lavalink Initialization (The Critical Fix) ---
+// --- Lavalink Initialization (The Critical Fix for TypeError) ---
 // Constructor MUST be called with only TWO arguments: the options object and the connector.
 client.kazagumo = new Kazagumo({
     defaultSearchEngine: 'youtube',
@@ -69,7 +62,7 @@ const commandsPath = path.join(__dirname, 'commands');
 const slashCommandsPath = path.join(commandsPath, 'slash');
 const eventsPath = path.join(__dirname, 'events');
 
-// Load Commands
+// Load Commands (error handling added for stability)
 try {
     const commandFiles = fs.readdirSync(slashCommandsPath).filter(file => file.endsWith('.js'));
     for (const file of commandFiles) {
@@ -79,10 +72,11 @@ try {
         }
     }
 } catch (e) {
+    // If the directory doesn't exist, this prevents a crash
     console.warn("Could not load commands. Ensure 'src/commands/slash' directory exists.");
 }
 
-// Load Events
+// Load Events (error handling added for stability)
 try {
     const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
     for (const file of eventFiles) {
@@ -94,6 +88,7 @@ try {
         }
     }
 } catch (e) {
+    // If the directory doesn't exist, this prevents a crash
     console.warn("Could not load events. Ensure 'src/events' directory exists.");
 }
 
@@ -103,7 +98,6 @@ try {
     if (!process.env.DISCORD_TOKEN) {
         throw new Error("DISCORD_TOKEN environment variable is not set. Cannot log in.");
     }
-    // Attempt to log in. This initiates the connection process.
     client.login(process.env.DISCORD_TOKEN);
 } catch (error) {
     console.error("CRITICAL ERROR: Failed to start Discord Client. Check your DISCORD_TOKEN!");
