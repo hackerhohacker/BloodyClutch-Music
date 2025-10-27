@@ -4,9 +4,9 @@ const { Connectors } = require('shoukaku');
 const fs = require('fs');
 const path = require('path');
 
-// CRITICAL FIX: Import the synchronized Lavalink node configuration
-// Adjust the path below if your kazagumo_config.js is not in the root directory
-const { nodes } = require('../../kazagumo_config'); 
+// CRITICAL FIX: The import path is corrected to look inside the 'utils' folder, 
+// relative to this 'src' directory.
+const { nodes } = require('./utils/musicUtils'); 
 
 // Load environment variables (TOKEN, CLIENT_ID, etc.)
 require('dotenv').config();
