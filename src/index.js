@@ -22,7 +22,8 @@ const client = new Client({
 // State to track Lavalink connection status
 client.isLavalinkReady = false; 
 
-// --- Lavalink Initialization (FINAL FIX: Nodes inside options object) ---
+// --- Lavalink Initialization (FIXED) ---
+// The nodes array is correctly inside the options object (1st argument).
 client.kazagumo = new Kazagumo({
     defaultSearchEngine: 'youtube',
     send: (guildId, payload) => {
@@ -30,14 +31,13 @@ client.kazagumo = new Kazagumo({
         if (guild) guild.shard.send(payload);
     },
     plugins: [],
-    // CRITICAL FIX: Include the 'nodes' array directly inside the options object
+    // CRITICAL FIX: Nodes are here, preventing the 'not iterable' error.
     nodes: nodes, 
-}, new Connectors.DiscordJS(client)); // Connector is the second argument
+}, new Connectors.DiscordJS(client)); // Connector is the 2nd and final argument.
 
 
 // --- Lavalink Events ---
 client.kazagumo.shoukaku.on('ready', (name) => {
-    // This is the line we want to see in the logs!
     console.log(`✅ Lavalink Node: ${name} connected successfully.`); 
     client.isLavalinkReady = true;
 });
@@ -62,11 +62,11 @@ client.commands = new Collection();
 
 // Load commands
 const commandsPath = path.join(__dirname, 'commands');
-const slashCommandsPath = path.join(commandsPath, 'slash');
-const commandFiles = fs.readdirSync(slashCommandsPath).filter(file => file.endsWith('.js'));
+const slashCommandsCommandsPath = path.join(commandsPath, 'slash');
+const commandFiles = fs.readdirSync(slashCommandsCommandsPath).filter(file => file.endsWith('.js'));
 
 for (const file of commandFiles) {
-    const filePath = path.join(slashCommandsPath, file);
+    const filePath = path.join(slashCommandsCommandsPath, file);
     const command = require(filePath);
     if ('data' in command && 'execute' in command) {
         client.commands.set(command.data.name, command);
