@@ -22,8 +22,7 @@ const client = new Client({
 // State to track Lavalink connection status
 client.isLavalinkReady = false; 
 
-// --- Lavalink Initialization (FIXED) ---
-// The nodes array is correctly inside the options object (1st argument).
+// --- Lavalink Initialization (FINAL CORRECT STRUCTURE) ---
 client.kazagumo = new Kazagumo({
     defaultSearchEngine: 'youtube',
     send: (guildId, payload) => {
@@ -31,7 +30,7 @@ client.kazagumo = new Kazagumo({
         if (guild) guild.shard.send(payload);
     },
     plugins: [],
-    // CRITICAL FIX: Nodes are here, preventing the 'not iterable' error.
+    // CRITICAL FIX: Nodes are here, inside the options object.
     nodes: nodes, 
 }, new Connectors.DiscordJS(client)); // Connector is the 2nd and final argument.
 
