@@ -4,8 +4,7 @@ const { Connectors } = require('shoukaku');
 const fs = require('fs');
 const path = require('path');
 
-// CRITICAL FIX: The import path is corrected to look inside the 'utils' folder, 
-// relative to this 'src' directory.
+// CRITICAL FIX: Corrected path to load the configuration from './utils/musicUtils'
 const { nodes } = require('./utils/musicUtils'); 
 
 // Load environment variables (TOKEN, CLIENT_ID, etc.)
