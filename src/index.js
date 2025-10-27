@@ -37,38 +37,41 @@ class MusicBot extends Client {
     }
 
     initializeLavalink() {
-        // 🛑 CRITICAL FIX APPLIED HERE 🛑
-        // Changed port from 2333 to 8080 to match the port Lavalink binds to on Render, 
-        // as shown in the previous log entry: "Undertow started on port(s) 8080"
+        // Node configuration remains 127.0.0.1:8080
         const lavalinkConfig = {
             name: 'main',
-            
-            // FIX: Use 8080, which is the port Lavalink is actually starting on
-            url: '127.0.0.1:8080', // Shoukaku expects 'url' as host:port
-            host: '127.0.0.1',      // Internal Loopback Address
-            port: 8080,             // Default Lavalink Port
-            
-            // Keep reading the password from the environment, as it's a secret
-            // NOTE: Ensure LAVALINK_PASSWORD in your .env or Render secrets is "bloodyclutch123"
+            url: '127.0.0.1:8080', 
+            host: '127.0.0.1',      
+            port: 8080,             
             auth: process.env.LAVALINK_PASSWORD,
-            
-            // FIX: Internal connections are NOT secure (no SSL/TLS)
             secure: false
         };
 
-        // For console logging, we display the full URL with protocol
         const logUrl = `${lavalinkConfig.secure ? 'wss' : 'ws'}://${lavalinkConfig.url}`;
 
         console.log(`🔗 Connecting to Lavalink: ${logUrl}`);
         console.log(`🔐 Using secure connection: ${lavalinkConfig.secure}`);
 
-        // The correct array structure for the final argument
+        // 🟢 FIX: Added custom Shoukaku options to handle long Lavalink startup time
+        const shoukakuOptions = {
+            // Increase the number of connection attempts
+            reconnectTries: 30, 
+            // Increase the interval between attempts (10 seconds)
+            reconnectInterval: 10000, 
+            // Set a long timeout for the initial connection
+            timeout: 60000, 
+            resume: false,
+        };
+        
+        // Pass the shoukaku options into the Kazagumo constructor
         this.kazagumo = new Kazagumo({
             defaultSearchEngine: 'youtube',
             send: (guildId, payload) => {
                 const guild = this.guilds.cache.get(guildId);
                 if (guild) guild.shard.send(payload);
-            }
+            },
+            // Pass the custom Shoukaku options here
+            shoukaku: shoukakuOptions 
         }, new Connectors.DiscordJS(this), [lavalinkConfig]);
 
         // Lavalink event listeners (keep these the same)
