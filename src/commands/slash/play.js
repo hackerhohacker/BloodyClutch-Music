@@ -64,6 +64,16 @@ module.exports = {
                 });
             }
             
+            // --- NEW: Sanity Check for Track Playability ---
+            if (result.type !== 'PLAYLIST' && !result.tracks[0].isPlayable) {
+                console.error('❌ Track is not playable:', result.tracks[0]);
+                 return interaction.editReply({
+                    embeds: [new EmbedBuilder()
+                        .setColor('#ff0000')
+                        .setDescription(`❌ The track **${result.tracks[0].title}** was found but cannot be played. It might be restricted, private, or require a different source plugin.`)]
+                });
+            }
+
             // Handle playlist
             if (result.type === 'PLAYLIST') {
                 for (const track of result.tracks) {
@@ -130,10 +140,24 @@ module.exports = {
         } catch (error) {
             console.error('❌ Error in play command:', error);
             
+            let errorMessage = '❌ An error occurred while trying to play the track!';
+
+            // Check if the error is a specific Kazagumo/Shoukaku error
+            if (error.message && error.message.includes('No node found')) {
+                // This shouldn't happen now, but is a good fallback
+                errorMessage = '❌ Lavalink connection failed. Please check the bot\'s configuration.';
+            } else if (error.message && error.message.includes('403')) {
+                // Common error for YouTube rate limits or other permission issues
+                 errorMessage = '❌ The music source (YouTube, Spotify, etc.) is currently blocked or rate-limited. Try a different query.';
+            } else if (error.message) {
+                 // Use the actual error message if it's available and not overly complex
+                 errorMessage = `❌ Failed to play track: ${error.message.substring(0, 100)}...`;
+            }
+            
             await interaction.editReply({
                 embeds: [new EmbedBuilder()
                     .setColor('#ff0000')
-                    .setDescription('❌ An error occurred while trying to play the track!')]
+                    .setDescription(errorMessage)]
             });
         }
     },
