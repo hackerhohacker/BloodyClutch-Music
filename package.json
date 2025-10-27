@@ -1,6 +1,6 @@
 {
   "name": "discord-lavalink-music-bot",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "A Discord music bot using Lavalink with slash and prefix commands",
   "main": "src/index.js",
   "scripts": {
