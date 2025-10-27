@@ -1,10 +1,10 @@
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
 const { Kazagumo, Plugins } = require('kazagumo');
-const { Connectors } = require('shoukaku');
+const { Connectors } = require('shoukaku'); // CRITICAL: Connectors is available here
 const fs = require('fs');
 const path = require('path');
 
-// CRITICAL FIX: Corrected path to load the configuration from './utils/musicUtils'
+// Import the synchronized Lavalink node configuration
 const { nodes } = require('./utils/musicUtils'); 
 
 // Load environment variables (TOKEN, CLIENT_ID, etc.)
@@ -22,19 +22,18 @@ const client = new Client({
 // State to track Lavalink connection status
 client.isLavalinkReady = false; 
 
-// --- Lavalink Initialization ---
+// --- Lavalink Initialization (FIXED) ---
+// Kazagumo initialization moved here to access 'Connectors.DiscordJS'
 client.kazagumo = new Kazagumo({
-    defaultSearchEngine: 'youtube', // Default search engine
+    defaultSearchEngine: 'youtube',
     send: (guildId, payload) => {
         const guild = client.guilds.cache.get(guildId);
         if (guild) guild.shard.send(payload);
     },
-    plugins: [
-        // Example plugins here if needed
-    ],
-    // CRITICAL FIX: Use the synchronized internal node configuration
+    plugins: [],
     nodes: nodes, 
-}, new Connectors.DiscordJS(client));
+// Pass the client to Connectors.DiscordJS()
+}, new Connectors.DiscordJS(client), nodes);
 
 
 // --- Lavalink Events ---
