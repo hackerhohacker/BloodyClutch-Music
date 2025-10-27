@@ -5,13 +5,12 @@ echo "Starting Lavalink..."
 java -jar Lavalink.jar &
 
 # 2. Wait a moment for Lavalink to be ready
-# INCREASED SLEEP TIME: Set to 30 seconds to give Lavalink enough time to fully initialize.
-sleep 30
+# CRITICAL FIX: Increased sleep time to 45 seconds to wait for Lavalink's 40-second startup.
+sleep 45
 
-# 3. Start the Discord Bot (Use the CORRECT file name here)
+# 3. Start the Discord Bot application
 echo "Starting Discord Bot application..."
-# 🛑 CHANGE THIS LINE TO YOUR BOT'S CORRECT STARTUP FILE 🛑
-node src/index.js # Corrected path from package.json: "start": "node src/index.js"
+node src/index.js
 
 # 4. Keep the container running until the bot stops
 wait -n
