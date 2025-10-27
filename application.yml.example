@@ -1,12 +1,12 @@
 server:
-  port: 443   # CRITICAL FIX: Forces Lavalink to use port 443 for internal communication
+  port: 443   # FIX: Forces Lavalink to use port 443
   address: 0.0.0.0
   ssl:
     enabled: false
 
 lavalink:
   server:
-    password: "bloodyclutch123" # Must match bot config in src/utils/musicUtils.js
+    password: "bloodyclutch123" # Must match bot config
     sources:
       youtube: true
       bandcamp: true
