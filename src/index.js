@@ -1,6 +1,6 @@
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
 const { Kazagumo, Plugins } = require('kazagumo');
-const { Connectors } = require('shoukaku'); // CRITICAL: Connectors is available here
+const { Connectors } = require('shoukaku');
 const fs = require('fs');
 const path = require('path');
 
@@ -22,8 +22,8 @@ const client = new Client({
 // State to track Lavalink connection status
 client.isLavalinkReady = false; 
 
-// --- Lavalink Initialization (FIXED) ---
-// Kazagumo initialization moved here to access 'Connectors.DiscordJS'
+// --- Lavalink Initialization (FIXED ARGUMENTS) ---
+// Kazagumo constructor takes (options, connector, nodes)
 client.kazagumo = new Kazagumo({
     defaultSearchEngine: 'youtube',
     send: (guildId, payload) => {
@@ -31,8 +31,7 @@ client.kazagumo = new Kazagumo({
         if (guild) guild.shard.send(payload);
     },
     plugins: [],
-    nodes: nodes, 
-// Pass the client to Connectors.DiscordJS()
+    // CRITICAL FIX: The 'nodes' array must be passed *separately* as the third argument in this format.
 }, new Connectors.DiscordJS(client), nodes);
 
 
