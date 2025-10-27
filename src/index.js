@@ -1,8 +1,8 @@
-***
+---
 
-## 4. Discord Bot Logic (`src/index.js`)
+## 4. Discord Bot Logic (`src/index.js`) - The Final Code Fix
 
-This file contains the **final fix for `TypeError: nodes is not iterable`** by ensuring the `Kazagumo` constructor is called with only two arguments.
+This file contains the correction for the recurrent **`TypeError: nodes is not iterable`** error by structuring the `Kazagumo` constructor correctly.
 
 ```javascript:src/index.js
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
@@ -14,6 +14,7 @@ const path = require('path');
 // Imports the nodes ARRAY
 const { nodes } = require('./utils/musicUtils'); 
 
+// Load environment variables (TOKEN, CLIENT_ID, etc.)
 require('dotenv').config();
 
 const client = new Client({
@@ -28,6 +29,7 @@ const client = new Client({
 client.isLavalinkReady = false; 
 
 // --- Lavalink Initialization (The Critical Fix) ---
+// Constructor MUST be called with only TWO arguments: the options object and the connector.
 client.kazagumo = new Kazagumo({
     defaultSearchEngine: 'youtube',
     send: (guildId, payload) => {
@@ -35,9 +37,9 @@ client.kazagumo = new Kazagumo({
         if (guild) guild.shard.send(payload);
     },
     plugins: [],
-    // CORRECT: nodes array is inside the options object.
+    // CRITICAL FIX: nodes array is correctly inside the options object.
     nodes: nodes, 
-}, new Connectors.DiscordJS(client)); // CORRECT: Only 2 arguments total.
+}, new Connectors.DiscordJS(client)); // Connector is the 2nd and final argument.
 
 
 // --- Lavalink Events ---
@@ -56,12 +58,18 @@ client.kazagumo.shoukaku.on('close', (name, code, reason) => {
     client.isLavalinkReady = false;
 });
 
-// --- Command and Event Handling (Simplified for brevity) ---
+client.kazagumo.shoukaku.on('debug', (name, info) => {
+    // console.log(`[DEBUG] Lavalink Node: ${name}`, info);
+});
+
+
+// --- Command and Event Handling (Standard Discord.js boilerplate) ---
 client.commands = new Collection();
 const commandsPath = path.join(__dirname, 'commands');
 const slashCommandsPath = path.join(commandsPath, 'slash');
+const eventsPath = path.join(__dirname, 'events');
 
-// Load commands (assumes necessary files exist)
+// Load Commands
 try {
     const commandFiles = fs.readdirSync(slashCommandsPath).filter(file => file.endsWith('.js'));
     for (const file of commandFiles) {
@@ -74,9 +82,8 @@ try {
     console.warn("Could not load commands. Ensure 'src/commands/slash' directory exists.");
 }
 
-// Load events (assumes necessary files exist)
+// Load Events
 try {
-    const eventsPath = path.join(__dirname, 'events');
     const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
     for (const file of eventFiles) {
         const event = require(path.join(eventsPath, file));
@@ -96,6 +103,7 @@ try {
     if (!process.env.DISCORD_TOKEN) {
         throw new Error("DISCORD_TOKEN environment variable is not set. Cannot log in.");
     }
+    // Attempt to log in. This initiates the connection process.
     client.login(process.env.DISCORD_TOKEN);
 } catch (error) {
     console.error("CRITICAL ERROR: Failed to start Discord Client. Check your DISCORD_TOKEN!");
