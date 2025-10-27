@@ -1,5 +1,5 @@
 server:
-  port: 2333
+  port: 8080 # CHANGED: Render often defaults to 8080 for web services
   address: 0.0.0.0
 
 lavalink:
@@ -22,10 +22,8 @@ lavalink:
     soundcloudSearchEnabled: true
     gc-warnings: true
   
-  # --- CRITICAL CHANGE 2: ADD THE YOUTUBE PLUGIN CONFIGURATION ---
+  # --- CRITICAL CHANGE 2: ADD THE YOUTUBE PLUGIN CONFIGURATION ONLY ---
   plugins:
-    # IMPORTANT: You MUST replace 'VERSION' with the latest stable version number
-    # of the YouTube plugin (e.g., 1.7.2, 1.8.0, etc.).
-    # You must also download the corresponding .jar file.
+    # Lavalink will try to download this dependency during startup
     - dependency: "dev.lavalink.youtube:youtube-plugin:1.15.0" 
       repository: "https://maven.lavalink.dev/releases"
